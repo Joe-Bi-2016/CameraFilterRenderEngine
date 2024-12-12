@@ -269,6 +269,9 @@ public abstract class BaseGLESCameraTextureView extends TextureView
         mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
             public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                // Now, EGL had created, we should create GLProgram and set some uniform variable
+                // If dynamic change shader, so should set shader in here
+                setProgram();
                 // send message to render thread to draw
                 if (mRenderThread != null) {
                     RenderOESCameraHandler handler = mRenderThread.getRenderHandler();
@@ -297,14 +300,12 @@ public abstract class BaseGLESCameraTextureView extends TextureView
             @Override
             public void run() {
                 mCameraManager.openCamera(mWidth, mHeight);
-                // Now, EGL had created, we should create GLProgram and set some uniform variable
-                setProgram();
             }
         }).start();
     }
 
     private void setProgram() {
-        if (mRenderThread != null) {
+        if (mRenderThread != null && !mhadSetProgram) {
             RenderOESCameraHandler handler = mRenderThread.getRenderHandler();
             if (handler != null) {
                 if (!mhadSetProgram) {
@@ -314,16 +315,17 @@ public abstract class BaseGLESCameraTextureView extends TextureView
                         handler.sendShaderName(mProgramName, mVertName, mFragName);
                     else
                         return;
+
+                    // because SurfaceTexture does not rotate model matrix, so set it to identity matrix
+                    float[] modelMatrix = new float[16];
+                    setIdentityM(modelMatrix, 0);
+                    handler.sendUniform(mEGLModelMartrixName, modelMatrix);
+
+                    // texture matrix should been get in render thread, so only set it's name
+                    handler.setTextureMatrixName(mEGLTextureMatrixName);
+
                     mhadSetProgram = true;
                 }
-
-                // because SurfaceTexture does not rotate model matrix, so set it to identity matrix
-                float[] modelMatrix = new float[16];
-                setIdentityM(modelMatrix, 0);
-                handler.sendUniform(mEGLModelMartrixName, modelMatrix);
-
-                // texture matrix should been get in render thread, so only set it's name
-                handler.setTextureMatrixName(mEGLTextureMatrixName);
             }
         }
     }

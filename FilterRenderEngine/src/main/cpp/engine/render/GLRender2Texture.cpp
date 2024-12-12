@@ -68,7 +68,7 @@ BEGIN
         mWidth = width;
         mHeight = height;
 
-        mTexture->initWithData(nullptr, width * height * 4, PixelFormat(RGBA8888), width, height, width, height);
+        mTexture->initWithData(width, height, PixelFormat(RGBA8888), nullptr, width * height * 4, width, height);
 
         return true;
     }

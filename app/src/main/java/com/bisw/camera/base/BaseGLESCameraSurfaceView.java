@@ -266,6 +266,9 @@ public abstract class BaseGLESCameraSurfaceView extends SurfaceView
         mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
             public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                // Now, EGL had created, we should create GLProgram and set some uniform variable
+                // If dynamic change shader, so should set shader in here
+                setProgram();
                 // send message to render thread to draw
                 if (mRenderThread != null) {
                     RenderOESCameraHandler handler = mRenderThread.getRenderHandler();
@@ -294,14 +297,12 @@ public abstract class BaseGLESCameraSurfaceView extends SurfaceView
             @Override
             public void run() {
                 mCameraManager.openCamera(mWidth, mHeight);
-                // Now, EGL had created, we should create GLProgram and set some uniform variable
-                setProgram();
             }
         }).start();
     }
 
     private void setProgram() {
-        if (mRenderThread != null) {
+        if (mRenderThread != null && !mhadSetProgram) {
             RenderOESCameraHandler handler = mRenderThread.getRenderHandler();
             if (handler != null) {
                 if (!mhadSetProgram) {
@@ -311,36 +312,37 @@ public abstract class BaseGLESCameraSurfaceView extends SurfaceView
                         handler.sendShaderName(mProgramName, mVertName, mFragName);
                     else
                         return;
+
+                    float[] modelMatrix = new float[16];
+                    setIdentityM(modelMatrix, 0);
+
+                    // Note: camera2 api did not set rotation matrix for SurfaceTexture, so need do transform in here
+                    if (mCameraManager instanceof Camera2Manager) {
+                        int displayRotation = mCameraManager.getDisplayOrientation();
+                        int degree = 0;
+                        switch (displayRotation) {
+                            case 0:
+                                degree = 90;
+                                break;
+                            case 90:
+                                degree = 0;
+                                break;
+                            case 180:
+                                degree = 270;
+                                break;
+                            case 270:
+                                degree = 180;
+                                break;
+                        }
+                        setRotateM(modelMatrix, 0, degree, 0, 0, 1);
+                    }
+
+                    handler.sendUniform(mEGLModelMartrixName, modelMatrix);
+                    // texture matrix should been get in render thread, so only set it's name
+                    handler.setTextureMatrixName(mEGLTextureMatrixName);
+
                     mhadSetProgram = true;
                 }
-
-                float[] modelMatrix = new float[16];
-                setIdentityM(modelMatrix, 0);
-
-                // Note: camera2 api did not set rotation matrix for SurfaceTexture, so need do transform in here
-                if (mCameraManager instanceof Camera2Manager) {
-                    int displayRotation = mCameraManager.getDisplayOrientation();
-                    int degree = 0;
-                    switch (displayRotation) {
-                        case 0:
-                            degree = 90;
-                            break;
-                        case 90:
-                            degree = 0;
-                            break;
-                        case 180:
-                            degree = 270;
-                            break;
-                        case 270:
-                            degree = 180;
-                            break;
-                    }
-                    setRotateM(modelMatrix, 0, degree, 0, 0, 1);
-                }
-
-                handler.sendUniform(mEGLModelMartrixName, modelMatrix);
-                // texture matrix should been get in render thread, so only set it's name
-                handler.setTextureMatrixName(mEGLTextureMatrixName);
             }
         }
     }

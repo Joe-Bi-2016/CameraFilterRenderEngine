@@ -104,7 +104,7 @@ BEGIN
 
         virtual bool textureDataIsNull(void) const { return true; }
 
-        virtual bool initWithData(const uint8_t* data, int dataLen, PixelFormat pixelFormat, unsigned int pixelsWide, unsigned int pixelsHigh, unsigned int width, unsigned int height)
+        virtual bool initWithData(unsigned int width, unsigned int height, PixelFormat pixelFormat, const uint8_t* data = nullptr, int dataLen = 0, unsigned int pixelsWide = 0, unsigned int pixelsHigh = 0)
         { return false; }
 
         virtual bool initWithMipmaps(MipmapInfo *mipmaps, int mipmapsNum, PixelFormat pixelFormat, unsigned int width, unsigned int height)

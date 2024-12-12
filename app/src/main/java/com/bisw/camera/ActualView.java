@@ -64,11 +64,11 @@ public class ActualView extends AppCompatActivity {
         mCameraManager = ((BaseView)mBaseView).getCameraManager();
 
         if(mBaseView instanceof BaseGLESCameraTextureView) {
-            ((BaseGLESCameraTextureView) mBaseView).setShaderName("cameraGray", "cameraEGLShader.vert", "cameraEGLShader.frag");
+            ((BaseGLESCameraTextureView) mBaseView).setShaderName("cameraGray", "cameraOESShader.vert", "cameraOESShader.frag");
             ((BaseGLESCameraTextureView) mBaseView).setEGLMatrixName("modelMat", "txtureMat");
         }
         if (mBaseView instanceof BaseGLESCameraSurfaceView) {
-            ((BaseGLESCameraSurfaceView) mBaseView).setShaderName("cameraGray","cameraEGLShader.vert", "cameraEGLShader.frag");
+            ((BaseGLESCameraSurfaceView) mBaseView).setShaderName("cameraGray","cameraOESShader.vert", "cameraOESShader.frag");
             ((BaseGLESCameraSurfaceView) mBaseView).setEGLMatrixName("modelMat", "txtureMat");
         }
 

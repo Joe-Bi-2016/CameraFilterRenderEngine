@@ -9,17 +9,17 @@
 //---------------------------------------------------------------------------//
 BEGIN
 
-//-----------------------------------------------------------------------//
-class API_EXPORTS Uncopyable
-{
-protected:
-    Uncopyable(void) { }
-    ~Uncopyable(void) { }
-
-private:
-    Uncopyable(const Uncopyable& other);
-    Uncopyable& operator=(const Uncopyable& other);
-};
+    //-----------------------------------------------------------------------//
+    class API_EXPORTS Uncopyable
+    {
+    protected:
+        Uncopyable(void) { }
+        ~Uncopyable(void) { }
+    
+    private:
+        Uncopyable(const Uncopyable& other);
+        Uncopyable& operator=(const Uncopyable& other);
+    };
 
 END
 

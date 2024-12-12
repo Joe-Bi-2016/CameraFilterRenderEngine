@@ -31,7 +31,7 @@ BEGIN
 
         bool isMipmapTexture(void) const { return mHasMipmaps; }
 
-        bool initWithData(const uint8_t* data, int dataLen, PixelFormat pixelFormat, unsigned int pixelsWide, unsigned int pixelsHigh, unsigned int width, unsigned int height);
+        bool initWithData(unsigned int width, unsigned int height, PixelFormat pixelFormat, const uint8_t* data = nullptr, int dataLen = 0, unsigned int pixelsWide = 0, unsigned int pixelsHigh = 0);
 
         bool initWithMipmaps(MipmapInfo *mipmaps, int mipmapsNum, PixelFormat pixelFormat, unsigned int width, unsigned int height);
 

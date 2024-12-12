@@ -119,7 +119,7 @@ public class RenderOESCameraThread extends Thread{
     // create GL variables
     private void initGL() {
         mNativeEglRender.native_setAssetsManger(mAssetManager);
-        mNativeEglRender.native_setBackgroundColor(0.0f, 1.0f, 0.0f, 1.0f);
+        mNativeEglRender.native_setBackgroundColor(1.0f, 1.0f, 1.0f, 1.0f);
         mTextureId = mNativeEglRender.native_createOESTexture(0, "oesTextureId");
     }
 

@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Camera"
+rootProject.name = "CameraFilterRenderEngine"
 include(":app")
 include(":FilterRenderEngine")

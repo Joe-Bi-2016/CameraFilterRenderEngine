@@ -136,7 +136,7 @@ JNIEXPORT void JNICALL setTexture(JNIEnv *env, jobject instance, jint format, ji
     }
 
     if(texture->textureDataIsNull())
-        texture->initWithData(buf, len, PixelFormat(format), width, height, width, height);
+        texture->initWithData(width, height, PixelFormat(format), buf, len, width, height);
     else
         texture->updateTexture(buf, len, PixelFormat(format), 0, 0, width, height);
 
