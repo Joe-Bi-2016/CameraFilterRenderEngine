@@ -4,7 +4,7 @@
 
 #ifndef __GLRenderBase_h__
 #define __GLRenderBase_h__
-#include "GLTexture2D.h"
+#include "GLEGLImageTexture.h"
 
 //----------------------------------------------------------------------------------------//
 BEGIN

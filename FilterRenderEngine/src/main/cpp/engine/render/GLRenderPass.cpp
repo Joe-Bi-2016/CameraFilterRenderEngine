@@ -4,7 +4,7 @@
 
 #include "GLRenderPass.h"
 #include "util/LogUtil.h"
-#include "GLTexture2D.h"
+#include "GLEGLImageTexture.h"
 #include "GLOESTexture.h"
 #include "GLProgramManager.h"
 #include <assert.h>
@@ -189,9 +189,14 @@ BEGIN
             sharedTexture texture = GLTexture::createTexture<GLTexture2D>(param, name);
             mTextureList.push_back(texture);
         }
-        else
+        else if (kind == OESTEXTURE)
         {
             sharedTexture texture = GLTexture::createTexture<GLOESTexture>(param, name);
+            mTextureList.push_back(texture);
+        }
+        else
+        {
+            sharedTexture texture = GLTexture::createTexture<GLEGLImageTexture>(param, name);
             mTextureList.push_back(texture);
         }
     }

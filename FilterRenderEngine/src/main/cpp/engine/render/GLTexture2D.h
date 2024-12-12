@@ -37,13 +37,15 @@ BEGIN
 
         bool updateTexture(const void *data, size_t dataLen, PixelFormat pixelFormat, int offsetX, int offsetY, int pixelsWide, int pixelsHigh);
 
+        unsigned int getBytesPixel(void) { return mBytesPixels; }
+
         textureUpdate getTextureUpdateFunc(void);
 
         void bindTexture(void);
 
         void unbindTexture(void);
 
-    private:
+    protected:
         GLTexture2D(const TexParam& param, const char* name = nullptr);
         ~GLTexture2D(void);
 
@@ -51,6 +53,7 @@ BEGIN
         PixelFormat     mFormat;
         bool            mHasMipmaps;
         bool            mHadPackedData;
+        unsigned int    mBytesPixels;
     };
 
 END

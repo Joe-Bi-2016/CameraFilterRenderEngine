@@ -15,6 +15,7 @@ BEGIN
     , mFormat(NONE)
     , mHasMipmaps(false)
     , mHadPackedData(false)
+    , mBytesPixels(0)
     {
     }
 
@@ -24,6 +25,7 @@ BEGIN
     , mFormat(texture2D.mFormat)
     , mHasMipmaps(texture2D.mHasMipmaps)
     , mHadPackedData(texture2D.mHadPackedData)
+    , mBytesPixels(texture2D.mBytesPixels)
     {
     }
 
@@ -33,10 +35,12 @@ BEGIN
     , mFormat(texture2D.mFormat)
     , mHasMipmaps(texture2D.mHasMipmaps)
     , mHadPackedData(texture2D.mHadPackedData)
+    , mBytesPixels(texture2D.mBytesPixels)
     {
         texture2D.mFormat = NONE;
         texture2D.mHasMipmaps = false;
         texture2D.mHadPackedData = false;
+        texture2D.mBytesPixels = 0;
     }
 
     //------------------------------------------------------------------------------------//
@@ -46,6 +50,7 @@ BEGIN
         mFormat = texture2D.mFormat;
         mHasMipmaps = texture2D.mHasMipmaps;
         mHadPackedData = texture2D.mHadPackedData;
+        mBytesPixels = texture2D.mBytesPixels;
 
         return *this;
     }
@@ -57,10 +62,12 @@ BEGIN
         mFormat = texture2D.mFormat;
         mHasMipmaps = texture2D.mHasMipmaps;
         mHadPackedData = texture2D.mHadPackedData;
+        mBytesPixels = texture2D.mBytesPixels;
 
         texture2D.mFormat = NONE;
         texture2D.mHasMipmaps = false;
         texture2D.mHadPackedData = false;
+        texture2D.mBytesPixels = 0;
 
         return *this;
     }
@@ -72,6 +79,7 @@ BEGIN
         mFormat = NONE;
         mHasMipmaps = false;
         mHadPackedData = false;
+        mBytesPixels = 0;
     }
 
     //------------------------------------------------------------------------------------//
@@ -191,6 +199,8 @@ BEGIN
         mHasMipmaps = mipmapsNum > 1;
 
         mHadPackedData = true;
+
+        mBytesPixels = info.bpp / 8;
 
         glBindTexture(GL_TEXTURE_2D, GL_NONE);
 

@@ -277,7 +277,21 @@ BEGIN
     void GLFrameBuffer::getPixels(const int x, const int y, const int width, const int height, PixelFormat format, uint8_t* ret)
     {
         const PixelFormatInfo& info = GLTexture2D::mPixelFormatInfoTables.at(format);
-        glReadPixels(x, y, width, height, info.format, GL_UNSIGNED_BYTE, ret);
+        if (mRenderTarget)
+        {
+            GLRender2Texture* renderPtr = (GLRender2Texture*)(mRenderTarget.get());
+            uint8_t* ptr = renderPtr->getTexture()->lockTexture();
+            if (ptr)
+            {
+                int w = renderPtr->getTexture()->getTextureWidth();
+                int h = renderPtr->getTexture()->getTextureHeight();
+                unsigned int bytesPixel = renderPtr->getTexture()->getBytesPixel();
+                memcpy(ret, ptr + (y * w + h) * bytesPixel, width * height * info.bpp / 8);
+            }
+            renderPtr->getTexture()->unlockTexture();
+        }
+        else
+            glReadPixels(x, y, width, height, info.format, GL_UNSIGNED_BYTE, ret);
     }
 
     //------------------------------------------------------------------------------------//

@@ -15,7 +15,7 @@ BEGIN
         param.wrapT = WRAPEDGE;
         param.antialiasEnabled = false;
 
-        mTexture = GLTexture::createTexture<GLTexture2D>(param);
+        mTexture = GLTexture::createTexture<GLEGLImageTexture>(param);
     }
 
     //------------------------------------------------------------------------------------//

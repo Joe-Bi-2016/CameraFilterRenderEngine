@@ -20,6 +20,7 @@ BEGIN
     {
         GLTEXTURE  = 0,
         OESTEXTURE = 1,
+        EGLTEXTURE = 2,
     }TextureKind;
 
     typedef enum : uint32_t
@@ -112,6 +113,13 @@ BEGIN
 
         virtual bool updateTexture(const void *data, size_t dataLen, PixelFormat pixelFormat, int offsetX, int offsetY, int pixelsWide, int pixelsHigh)
         { return false; }
+
+        virtual uint8_t* lockTexture(void)
+        { return nullptr; }
+
+        virtual void unlockTexture(void) { }
+
+        virtual unsigned int getBytesPixel(void) { return 0; }
 
         GLuint getTextureId(void) const { return  mTextureId; }
 
