@@ -319,19 +319,32 @@ public abstract class BaseGLESCameraSurfaceView extends SurfaceView
                     // Note: camera2 api did not set rotation matrix for SurfaceTexture, so need do transform in here
                     if (mCameraManager instanceof Camera2Manager) {
                         int displayRotation = mCameraManager.getDisplayOrientation();
+                        boolean isFrontCamera = ((Camera2Manager) mCameraManager).isFrontCmaera();
                         int degree = 0;
                         switch (displayRotation) {
                             case 0:
-                                degree = 90;
+                                if(isFrontCamera)
+                                    degree = 270;
+                                else
+                                    degree = 90;
                                 break;
                             case 90:
-                                degree = 0;
+                                if(isFrontCamera)
+                                    degree = 180;
+                                else
+                                    degree = 0;
                                 break;
                             case 180:
-                                degree = 270;
+                                if(isFrontCamera)
+                                    degree = 90;
+                                else
+                                    degree = 270;
                                 break;
                             case 270:
-                                degree = 180;
+                                if(isFrontCamera)
+                                    degree = 0;
+                                else
+                                    degree = 180;
                                 break;
                         }
                         setRotateM(modelMatrix, 0, degree, 0, 0, 1);

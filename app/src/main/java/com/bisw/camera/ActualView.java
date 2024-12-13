@@ -18,7 +18,9 @@ import com.bisw.camera.base.BaseView;
 import com.bisw.camera.base.ICameraManager;
 import com.bisw.camera.base.SavePictureCallback;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ActualView extends AppCompatActivity {
     private final String TAG = ActualView.class.getSimpleName();
@@ -27,6 +29,8 @@ public class ActualView extends AppCompatActivity {
     private final int mRequestCode = 119;
     private View mBaseView;
     private ICameraManager mCameraManager;
+    private HashMap<Integer, String[]> mShaderList;
+    private int mShaderIndex = 0;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,23 +61,30 @@ public class ActualView extends AppCompatActivity {
             }
         }
 
+        mShaderList = new HashMap<Integer, String[]>();
+        mShaderList.put(0, new String[]{"cameraGray", "cameraOESVertex.glsl", "cameraOESGray.glsl"});
+        mShaderList.put(1, new String[]{"cameraBlur", "cameraOESVertex.glsl", "cameraOESBlue.glsl"});
+        mShaderList.put(2, new String[]{"cameraAperture", "cameraOESVertex.glsl", "cameraOESAperture.glsl"});
+
         int layoutId = getIntent().getIntExtra("xmlName", R.layout.activity_texture_camera);
 
         setContentView(layoutId);
         mBaseView = (View)findViewById(R.id.cameraView);
         mCameraManager = ((BaseView)mBaseView).getCameraManager();
 
+        String[] curShader = mShaderList.get(mShaderIndex);
         if(mBaseView instanceof BaseGLESCameraTextureView) {
-            ((BaseGLESCameraTextureView) mBaseView).setShaderName("cameraGray", "cameraOESShader.vert", "cameraOESShader.frag");
+            ((BaseGLESCameraTextureView) mBaseView).setShaderName(curShader[0], curShader[1], curShader[2]);
             ((BaseGLESCameraTextureView) mBaseView).setEGLMatrixName("modelMat", "txtureMat");
         }
         if (mBaseView instanceof BaseGLESCameraSurfaceView) {
-            ((BaseGLESCameraSurfaceView) mBaseView).setShaderName("cameraGray","cameraOESShader.vert", "cameraOESShader.frag");
+            ((BaseGLESCameraSurfaceView) mBaseView).setShaderName(curShader[0], curShader[1], curShader[2]);
             ((BaseGLESCameraSurfaceView) mBaseView).setEGLMatrixName("modelMat", "txtureMat");
         }
 
         findViewById(R.id.captureBtn).setOnClickListener(v->capture());
         findViewById(R.id.switchCameraBtn).setOnClickListener(v->mCameraManager.switchCamera());
+        findViewById(R.id.switchFilter).setOnClickListener(v->changeEffect());
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
@@ -135,5 +146,18 @@ public class ActualView extends AppCompatActivity {
 
     void capture() {
         mCameraManager.takePicture(new SavePictureCallback());
+    }
+
+    void changeEffect() {
+        mShaderIndex = (++mShaderIndex) % mShaderList.size();
+        String[] curShader = mShaderList.get(mShaderIndex);
+        if(mBaseView instanceof BaseGLESCameraTextureView) {
+            ((BaseGLESCameraTextureView) mBaseView).setShaderName(curShader[0], curShader[1], curShader[2]);
+            ((BaseGLESCameraTextureView) mBaseView).setEGLMatrixName("modelMat", "txtureMat");
+        }
+        if (mBaseView instanceof BaseGLESCameraSurfaceView) {
+            ((BaseGLESCameraSurfaceView) mBaseView).setShaderName(curShader[0], curShader[1], curShader[2]);
+            ((BaseGLESCameraSurfaceView) mBaseView).setEGLMatrixName("modelMat", "txtureMat");
+        }
     }
 }

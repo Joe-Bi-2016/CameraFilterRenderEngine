@@ -38,4 +38,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/captureBtn" />
 
+    <ImageView
+        android:id="@+id/switchFilter"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/img_switch_bg"
+        android:padding="14dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/img_switch_pressed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/captureBtn"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

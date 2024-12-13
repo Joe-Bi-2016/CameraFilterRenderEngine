@@ -102,8 +102,10 @@ JNIEXPORT void JNICALL setProgramShaderFromAssets(JNIEnv *env, jobject instance,
     uint64_t vertShaderLen = 0, fragShaderLen = 0;
     FILE* vertFile = fileOpen(vert.c_str(), (const char*)"r", &vertShaderLen);
     FILE* fragFile = fileOpen(frag.c_str(), (const char*)"r", &fragShaderLen);
-    char* vertStr = new char[vertShaderLen];
-    char* fragStr = new char[fragShaderLen];
+    char* vertStr = new char[vertShaderLen + 1];
+    char* fragStr = new char[fragShaderLen  +1];
+    memset(vertStr, 0x0, (vertShaderLen + 1));
+    memset(fragStr, 0x0, (fragShaderLen + 1));
     fileRead(vertFile, nullptr, vertStr, vertShaderLen, 1);
     fileRead(fragFile, nullptr, fragStr, fragShaderLen, 1);
     fileClose(vertFile);
