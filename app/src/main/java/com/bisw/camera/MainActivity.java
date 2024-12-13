@@ -49,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
         Map<String, String> i7 = new HashMap<String, String>();
         i7.put("test", "Camera2 - GLESSurfaceView");
 
+        Map<String, String> i8 = new HashMap<String, String>();
+        i8.put("test", "ImageView - GLESFilter");
+
         data.add(i0);
         data.add(i1);
         data.add(i2);
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         data.add(i5);
         data.add(i6);
         data.add(i7);
+        data.add(i8);
 
         listview.setAdapter(new SimpleAdapter(this, data, R.layout.item, new String[] {"test"}, new int[]{R.id.tv_name}));
 
@@ -64,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this, ActualView.class);
+                intent.setClass(MainActivity.this, ActualCameraView.class);
                 if(id == 0)
                     intent.putExtra("xmlName", R.layout.activity_texture_camera);
                 else if(id == 1)
@@ -81,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("xmlName", R.layout.activity_oestexture_camera2);
                 else if(id == 7)
                     intent.putExtra("xmlName", R.layout.activity_oessurface_camera2);
+                else if (id == 8)
+                    intent.setClass(MainActivity.this, ImageAnimationView.class);
+
                 startActivity(intent);
             }
         });

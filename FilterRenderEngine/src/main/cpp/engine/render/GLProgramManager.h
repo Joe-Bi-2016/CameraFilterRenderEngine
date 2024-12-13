@@ -22,15 +22,24 @@ BEGIN
 
         bool putProgram(const char* shaderName, const sharedProgram& program);
         bool putProgram(const string& shaderName, const sharedProgram& program)
-        { if (!shaderName.empty()) return putProgram(shaderName.c_str(), program); }
+        {
+            if (!shaderName.empty()) return putProgram(shaderName.c_str(), program);
+            return false;
+        }
 
         bool deleteProgram(const char* shaderName);
         bool deleteProgram(const string& shaderName)
-        { if (!shaderName.empty()) return deleteProgram(shaderName.c_str()); }
+        {
+            if (!shaderName.empty()) return deleteProgram(shaderName.c_str());
+            return false;
+        }
 
         sharedProgram getProgram(const char* shaderName);
         sharedProgram getProgram(const string& shaderName)
-        { if (!shaderName.empty()) getProgram(shaderName.c_str()); }
+        {
+            if (!shaderName.empty()) return getProgram(shaderName.c_str());
+            return nullptr;
+        }
 
     private:
         GLProgramManager(void) { }

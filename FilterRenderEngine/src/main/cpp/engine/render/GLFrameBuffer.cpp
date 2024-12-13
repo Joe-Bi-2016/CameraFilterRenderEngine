@@ -286,12 +286,12 @@ BEGIN
                 int w = renderPtr->getTexture()->getTextureWidth();
                 int h = renderPtr->getTexture()->getTextureHeight();
                 unsigned int bytesPixel = renderPtr->getTexture()->getBytesPixel();
-                memcpy(ret, ptr + (y * w + h) * bytesPixel, width * height * info.bpp / 8);
+                memcpy(ret, ptr + (y * w + x) * bytesPixel, width * height * info.bpp / 8);
+                renderPtr->getTexture()->unlockTexture();
             }
-            renderPtr->getTexture()->unlockTexture();
+            else
+                glReadPixels(x, y, width, height, info.format, GL_UNSIGNED_BYTE, ret);
         }
-        else
-            glReadPixels(x, y, width, height, info.format, GL_UNSIGNED_BYTE, ret);
     }
 
     //------------------------------------------------------------------------------------//

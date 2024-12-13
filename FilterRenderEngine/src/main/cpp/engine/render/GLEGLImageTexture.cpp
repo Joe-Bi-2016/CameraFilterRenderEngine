@@ -12,6 +12,13 @@
 //----------------------------------------------------------------------------------------//
 BEGIN
 
+#if (defined(ANDROID) || defined(__ANDROID__))
+    static PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC eglGetNativeClientBufferANDROID = nullptr;
+    static PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR = nullptr;
+    typedef void (*PFNGLBINDTEXIMAGE)(GLenum target, GLeglImageOES image);
+    static PFNGLBINDTEXIMAGE glEGLImageTargetTexture2DOES = nullptr;
+#endif
+
     //------------------------------------------------------------------------------------//
     GLEGLImageTexture::GLEGLImageTexture(const TexParam& param, const char* name/* = nullptr*/)
     : GLTexture2D(param, name)
@@ -19,6 +26,37 @@ BEGIN
 #if (defined(ANDROID) || defined(__ANDROID__))
         mInBuffer = nullptr;
         mBufferPtr = nullptr;
+
+        // first, get function pointer of EGL and extension
+        if (!eglGetNativeClientBufferANDROID)
+        {
+            eglGetNativeClientBufferANDROID = (PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC)eglGetProcAddress("eglGetNativeClientBufferANDROID");
+            if (!eglGetNativeClientBufferANDROID)
+            {
+                LOGERROR("Get eglGetNativeClientBufferANDROID function failed!\n");
+                return;
+            }
+        }
+
+        if (!eglCreateImageKHR)
+        {
+            eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+            if (!eglCreateImageKHR)
+            {
+                LOGERROR("Get eglCreateImageKHR function failed!\n");
+                return;
+            }
+        }
+
+        if (!glEGLImageTargetTexture2DOES)
+        {
+            glEGLImageTargetTexture2DOES = (PFNGLBINDTEXIMAGE)eglGetProcAddress("glEGLImageTargetTexture2DOES");
+            if (!glEGLImageTargetTexture2DOES)
+            {
+                LOGERROR("Get glEGLImageTargetTexture2DOES function failed!\n");
+                return;
+            }
+        }
 #endif
     }
 
@@ -92,7 +130,8 @@ BEGIN
     {
         // Note: some only bits is equal, did not mean the same format
         int ret = 1;
-        switch (pixelFormat) {
+        switch (pixelFormat)
+        {
             case BGRA8888:  { ret = 2; break; }
             case RGBA8888:  { ret = 1; break; }
             case RGB888:    { ret = 3; break; }
@@ -110,29 +149,6 @@ BEGIN
     bool GLEGLImageTexture::initWithMipmaps(MipmapInfo *mipmaps, int mipmapsNum, PixelFormat pixelFormat, unsigned int pixelsWide, unsigned int pixelsHigh)
     {
 #if (defined(ANDROID) || defined(__ANDROID__))
-        // first, get function pointer of EGL and extension
-        PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC eglGetNativeClientBufferANDROID = (PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC)eglGetProcAddress("eglGetNativeClientBufferANDROID");
-        if (!eglGetNativeClientBufferANDROID)
-        {
-            LOGERROR("Get eglGetNativeClientBufferANDROID function failed!\n");
-            return false;
-        }
-
-        PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
-        if (!eglCreateImageKHR)
-        {
-            LOGERROR("Get eglCreateImageKHR function failed!\n");
-            return false;
-        }
-
-        typedef void (*PFNGLBINDTEXIMAGE)(GLenum target, GLeglImageOES image);
-        PFNGLBINDTEXIMAGE glEGLImageTargetTexture2DOES = (PFNGLBINDTEXIMAGE)eglGetProcAddress("glEGLImageTargetTexture2DOES");
-        if (!glEGLImageTargetTexture2DOES)
-        {
-            LOGERROR("Get glEGLImageTargetTexture2DOES function failed!\n");
-            return false;
-        }
-
         AHardwareBuffer_Format format = (AHardwareBuffer_Format)pixelFormat2HardwareBufferFormat(pixelFormat);
         AHardwareBuffer_Desc desc = {pixelsWide, pixelsHigh,
                                      1,
@@ -142,41 +158,50 @@ BEGIN
                                      0 ,
                                      0};
         int ret = AHardwareBuffer_allocate(&desc, &mInBuffer);
-        LOGINFO("AHardwareBuffer_allocate ret: %d", ret);
-
-        AHardwareBuffer_Planes planes_info = {0};
-        ret = AHardwareBuffer_lockPlanes(mInBuffer,
-                                         AHARDWAREBUFFER_USAGE_CPU_WRITE_MASK,
-                                         -1,
-                                         nullptr,
-                                         &planes_info);
         if (ret != 0)
         {
-            LOGERROR("Failed to AHardwareBuffer_lockPlanes");
-            ret = AHardwareBuffer_unlock(mInBuffer, nullptr);
+            LOGINFO("Failed to AHardwareBuffer_allocate");
             return false;
         }
-        else
-        {
-            const PixelFormatInfo& info = mPixelFormatInfoTables.at(pixelFormat);
-            mBytesPixels = info.bpp / 8;
-            unsigned int bytesPerRow = pixelsWide * mBytesPixels;
-            memcpy(planes_info.planes[0].data, mipmaps[0].pdata, bytesPerRow * pixelsHigh);
 
-            ret = AHardwareBuffer_unlock(mInBuffer, nullptr);
+        const PixelFormatInfo& info = mPixelFormatInfoTables.at(pixelFormat);
+        mBytesPixels = info.bpp / 8;
+
+        assert(mipmapsNum > 0);
+        if (mipmaps[mipmapsNum-1].pdata)
+        {
+            AHardwareBuffer_Planes planes_info = {0};
+            ret = AHardwareBuffer_lockPlanes(mInBuffer,
+                                             AHARDWAREBUFFER_USAGE_CPU_WRITE_MASK,
+                                             -1,
+                                             nullptr,
+                                             &planes_info);
             if (ret != 0)
             {
-                LOGERROR("Failed to AHardwareBuffer_unlock");
+                LOGERROR("Failed to AHardwareBuffer_lockPlanes");
+                ret = AHardwareBuffer_unlock(mInBuffer, nullptr);
                 return false;
             }
+            else
+            {
+                unsigned int bytesPerRow = pixelsWide * mBytesPixels;
+                memcpy(planes_info.planes[0].data, mipmaps[0].pdata, bytesPerRow * pixelsHigh);
+
+                ret = AHardwareBuffer_unlock(mInBuffer, nullptr);
+                if (ret != 0)
+                {
+                    LOGERROR("Failed to AHardwareBuffer_unlock");
+                    return false;
+                }
+            }
+
+            mHadPackedData = true;
         }
 
-        mBufferPtr = planes_info.planes[0].data;
         mWidth = pixelsWide;
         mHeight = pixelsHigh;
         mFormat = pixelFormat;
         mHasMipmaps = mipmapsNum > 1;
-        mHadPackedData = true;
 
         EGLint eglImageAttributes[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
         EGLClientBuffer cb = eglGetNativeClientBufferANDROID(mInBuffer);
@@ -187,6 +212,22 @@ BEGIN
                                                        reinterpret_cast<const EGLint*>(eglImageAttributes));
         LOGINFO("eglCreateImageKHR eglImageHandle: %p", eglImageHandle);
         LOGINFO("error: %d", eglGetError());
+
+        if (mipmapsNum == 1 && !info.compressed)
+        {
+            unsigned int bytesPerRow = pixelsWide * info.bpp / 8;
+
+            if(bytesPerRow % 8 == 0)
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
+            else if(bytesPerRow % 4 == 0)
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+            else if(bytesPerRow % 2 == 0)
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+            else
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        }
+        else
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         glBindTexture(GL_TEXTURE_2D, mTextureId);
         glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, eglImageHandle);
@@ -202,7 +243,7 @@ BEGIN
 
         CHECK_GL_ERROR(); // clean possible GL error
 
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
         return true;
 #else
@@ -229,7 +270,9 @@ BEGIN
         unsigned int bytesPixel = info.bpp / 8;
         unsigned int bytesPerRow = pixelsWide * bytesPixel;
         unsigned int offset = (offsetY * mWidth + offsetX) * mBytesPixels;
+        lockTexture();
         memcpy((uint8_t*)mBufferPtr + offset, data, bytesPerRow * pixelsHigh);
+        unlockTexture();
 
         return true;
 #else

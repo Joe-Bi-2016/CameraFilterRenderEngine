@@ -151,8 +151,6 @@ BEGIN
             }
         }
 
-        mEglCore->swapBuffers();
-
         LOGINFO("draw end......");
     }
 

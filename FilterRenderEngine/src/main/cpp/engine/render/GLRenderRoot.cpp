@@ -11,6 +11,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <string>
+#include <typeinfo>
 
 //----------------------------------------------------------------------------------------//
 BEGIN
@@ -247,6 +248,16 @@ BEGIN
         }
 
         mMainThreadRoot->onDo(renderPassIndex);
+
+        if(mDefaultFbo && mDefaultFbo.get())
+        {
+            // If fbo uses EGL textures, then glFinish() should be called, otherwise there is no data output to EGLImage
+            sharedRenderTarget target = mDefaultFbo->getRenderTarget();
+            if (target && typeid(*(target->getTexture())) == typeid(GLEGLImageTexture))
+                glFinish();
+        }
+
+        mMainThreadRoot->getEGLContext()->swapBuffers();
 
         LOGINFO("draw end......");
     }
