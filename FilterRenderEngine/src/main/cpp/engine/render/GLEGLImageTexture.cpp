@@ -25,7 +25,6 @@ BEGIN
     {
 #if (defined(ANDROID) || defined(__ANDROID__))
         mInBuffer = nullptr;
-        mBufferPtr = nullptr;
 
         // first, get function pointer of EGL and extension
         if (!eglGetNativeClientBufferANDROID)
@@ -66,7 +65,6 @@ BEGIN
     {
 #if (defined(ANDROID) || defined(__ANDROID__))
         mInBuffer = texture.mInBuffer;
-        mBufferPtr = texture.mBufferPtr;
 #endif
     }
 
@@ -76,9 +74,7 @@ BEGIN
     {
 #if (defined(ANDROID) || defined(__ANDROID__))
         mInBuffer = texture.mInBuffer;
-        mBufferPtr = texture.mBufferPtr;
         texture.mInBuffer = nullptr;
-        texture.mBufferPtr = nullptr;
 #endif
     }
 
@@ -89,7 +85,6 @@ BEGIN
 #if (defined(ANDROID) || defined(__ANDROID__))
         release(*this);
         mInBuffer = texture.mInBuffer;
-        mBufferPtr = texture.mBufferPtr;
 #endif
         return *this;
     }
@@ -121,7 +116,6 @@ BEGIN
         {
             AHardwareBuffer_release(texture.mInBuffer);
         }
-        texture.mBufferPtr = nullptr;
 #endif
     }
 
@@ -270,8 +264,8 @@ BEGIN
         unsigned int bytesPixel = info.bpp / 8;
         unsigned int bytesPerRow = pixelsWide * bytesPixel;
         unsigned int offset = (offsetY * mWidth + offsetX) * mBytesPixels;
-        lockTexture();
-        memcpy((uint8_t*)mBufferPtr + offset, data, bytesPerRow * pixelsHigh);
+        uint8_t* bufferPtr = lockTexture();
+        memcpy((uint8_t*)bufferPtr + offset, data, bytesPerRow * pixelsHigh);
         unlockTexture();
 
         return true;
@@ -295,9 +289,10 @@ BEGIN
     uint8_t* GLEGLImageTexture::lockTexture(void)
     {
 #if (defined(ANDROID) || defined(__ANDROID__))
+        uint8_t *ptrReader = nullptr;
         AHardwareBuffer_lock(mInBuffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr,
-                             (void **) &mBufferPtr);
-        return (uint8_t*)mBufferPtr;
+                             (void **) &ptrReader);
+        return (uint8_t*)ptrReader;
     }
 #else
         return GLTexture2D::lockTexture();

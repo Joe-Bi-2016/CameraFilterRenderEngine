@@ -49,7 +49,6 @@ BEGIN
     private:
 #if (defined(ANDROID) || defined(__ANDROID__))
         AHardwareBuffer*    mInBuffer;
-        void*               mBufferPtr;
 #endif
 
 };
