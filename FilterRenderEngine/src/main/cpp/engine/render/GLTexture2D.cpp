@@ -194,6 +194,7 @@ BEGIN
 
         mWidth = pixelsWide;
         mHeight = pixelsHigh;
+        mStride = pixelsWide + (4 - pixelsWide % 4);
         mFormat = pixelFormat;
 
         mHasMipmaps = mipmapsNum > 1;

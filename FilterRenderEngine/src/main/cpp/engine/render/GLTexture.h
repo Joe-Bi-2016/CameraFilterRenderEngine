@@ -129,6 +129,8 @@ BEGIN
 
         int getTextureHeight(void) const { return mHeight; }
 
+        int getTextureStride(void) const {return mStride; }
+
         virtual const PixelFormat getFormat(void) const { return PixelFormat::NONE; }
 
         const TexParam& getTextureParam(void) const { return mTexParams; }
@@ -157,6 +159,7 @@ BEGIN
         char*           mName;
         int             mWidth;
         int             mHeight;
+        int             mStride;
         TexParam        mTexParams;
     };
 

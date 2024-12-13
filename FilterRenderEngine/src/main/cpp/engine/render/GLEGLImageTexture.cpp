@@ -158,6 +158,9 @@ BEGIN
             return false;
         }
 
+        AHardwareBuffer_describe(mInBuffer, &desc);
+        mStride = desc.stride;
+
         const PixelFormatInfo& info = mPixelFormatInfoTables.at(pixelFormat);
         mBytesPixels = info.bpp / 8;
 
@@ -263,9 +266,11 @@ BEGIN
         const PixelFormatInfo& info = mPixelFormatInfoTables.at(mFormat);
         unsigned int bytesPixel = info.bpp / 8;
         unsigned int bytesPerRow = pixelsWide * bytesPixel;
-        unsigned int offset = (offsetY * mWidth + offsetX) * mBytesPixels;
+        unsigned int offset = (offsetY * mStride + offsetX) * mBytesPixels;
         uint8_t* bufferPtr = lockTexture();
-        memcpy((uint8_t*)bufferPtr + offset, data, bytesPerRow * pixelsHigh);
+        bufferPtr += offset;
+        for (int y = 0; y < pixelsHigh; ++y)
+            memcpy(bufferPtr + y * mStride * mBytesPixels, data, y * bytesPerRow);
         unlockTexture();
 
         return true;

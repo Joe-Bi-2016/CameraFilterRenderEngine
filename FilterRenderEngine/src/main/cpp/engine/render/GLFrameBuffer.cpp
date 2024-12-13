@@ -283,10 +283,15 @@ BEGIN
             uint8_t* ptr = renderPtr->getTexture()->lockTexture();
             if (ptr)
             {
-                int w = renderPtr->getTexture()->getTextureWidth();
-                int h = renderPtr->getTexture()->getTextureHeight();
+                int stride = renderPtr->getTexture()->getTextureStride();
                 unsigned int bytesPixel = renderPtr->getTexture()->getBytesPixel();
-                memcpy(ret, ptr + (y * w + x) * bytesPixel, width * height * info.bpp / 8);
+                uint32_t srcStrideBytes = stride * bytesPixel;
+                uint8_t* src = ptr + (y * stride + x) * bytesPixel;
+                int dstRowBytes = width * (info.bpp / 8);
+                for (int r = 0; r < height; ++r)
+                {
+                    memcpy(ret + r * dstRowBytes, src + r * srcStrideBytes, dstRowBytes);
+                }
                 renderPtr->getTexture()->unlockTexture();
             }
             else

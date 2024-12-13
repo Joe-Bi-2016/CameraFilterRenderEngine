@@ -68,6 +68,7 @@ BEGIN
     , mName(nullptr)
     , mWidth(0)
     , mHeight(0)
+    , mStride(0)
     , mTexParams(param)
     {
         glGenTextures(1, &mTextureId);
@@ -94,6 +95,7 @@ BEGIN
     , mName(nullptr)
     , mWidth(texture2D.mWidth)
     , mHeight(texture2D.mHeight)
+    , mStride(texture2D.mStride)
     , mTexParams(texture2D.mTexParams)
     {
         if (texture2D.mName)
@@ -111,12 +113,14 @@ BEGIN
     , mName(texture2D.mName)
     , mWidth(texture2D.mWidth)
     , mHeight(texture2D.mHeight)
+    , mStride(texture2D.mStride)
     , mTexParams(texture2D.mTexParams)
     {
         texture2D.mTextureId = GL_NONE;
         texture2D.mName = nullptr;
         texture2D.mWidth = 0;
         texture2D.mHeight = 0;
+        texture2D.mStride = 0;
     }
 
     //------------------------------------------------------------------------------------//
@@ -127,6 +131,7 @@ BEGIN
         mTextureId = texture2D.mTextureId;
         mWidth = texture2D.mWidth;
         mHeight = texture2D.mHeight;
+        mStride = texture2D.mStride;
         mTexParams = texture2D.mTexParams;
 
         if (texture2D.mName)
@@ -149,12 +154,14 @@ BEGIN
         mName = texture2D.mName;
         mWidth = texture2D.mWidth;
         mHeight = texture2D.mHeight;
+        mStride = texture2D.mStride;
         mTexParams = texture2D.mTexParams;
 
         texture2D.mTextureId = GL_NONE;
         texture2D.mName = nullptr;
         texture2D.mWidth = 0;
         texture2D.mHeight = 0;
+        texture2D.mStride = 0;
 
         return *this;
     }
@@ -174,6 +181,7 @@ BEGIN
         mTextureId = GL_NONE;
         mWidth = 0;
         mHeight = 0;
+        mStride = 0;
 
         if (mName)
         {
