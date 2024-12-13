@@ -84,7 +84,9 @@ public class ActualView extends AppCompatActivity {
 
         findViewById(R.id.captureBtn).setOnClickListener(v->capture());
         findViewById(R.id.switchCameraBtn).setOnClickListener(v->mCameraManager.switchCamera());
-        findViewById(R.id.switchFilter).setOnClickListener(v->changeEffect());
+
+        if(mBaseView instanceof BaseGLESCameraTextureView || mBaseView instanceof BaseGLESCameraSurfaceView)
+            findViewById(R.id.switchFilter).setOnClickListener(v->changeEffect());
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
