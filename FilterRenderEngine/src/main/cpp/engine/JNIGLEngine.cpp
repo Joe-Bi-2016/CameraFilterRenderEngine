@@ -309,6 +309,17 @@ JNIEXPORT jobject JNICALL readPixel(JNIEnv *env, jobject instance, int x, int y,
 
     GLRenderRoot::getInstance()->getDefaultFbo()->getPixels(x, y, width, height, RGBA8888, (uint8_t*)bitmapPixels);
 
+//    for (int i = 0; i < height/2; i++)
+//    {
+//        for (int j = 0; j < width; j++)
+//        {
+//            uint32_t texturePixel0 = ((uint32_t*)bitmapPixels)[width * i + j];
+//            uint32_t texturePixel1 = ((uint32_t*)bitmapPixels)[width * (height - 1 - i) + j];
+//            ((uint32_t*)bitmapPixels)[i * width + j] = texturePixel1;
+//            ((uint32_t*)bitmapPixels)[(height - i - 1) * width + j] = texturePixel0;
+//        }
+//    }
+
     AndroidBitmap_unlockPixels(env, newBitmap);
 
     return newBitmap;
