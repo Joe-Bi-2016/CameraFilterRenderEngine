@@ -16,7 +16,7 @@ void main()
     vec3 bcol = vec3(1.0,0.8,0.7-0.07*p.y)*(1.0-0.25*length(p));
 
     // animate
-    float tt = fmod(u_time,1.5)/1.5;
+    float tt = mod(u_time,1.5)/1.5;
     float ss = pow(tt,.2)*0.5 + 0.5;
     ss = 1.0 + ss*0.5*sin(tt*6.2831*3.0 + p.y*0.5)*exp(-tt*4.0);
     p *= vec2(0.5,1.5) + ss*vec2(0.5,-0.5);

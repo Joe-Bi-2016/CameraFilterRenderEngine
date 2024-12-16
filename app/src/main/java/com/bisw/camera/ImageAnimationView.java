@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,6 +16,7 @@ import com.bisw.camera.base.Utils;
 import com.bisw.filterRenderEngine.NativeGLRender;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 
 public class ImageAnimationView extends AppCompatActivity {
     private final String TAG = ImageAnimationView.class.getSimpleName();
@@ -24,6 +24,7 @@ public class ImageAnimationView extends AppCompatActivity {
     private Button mBtnRest = null, mBtnBk = null, mBtnSwitch = null;
     private final int RESERIMGAGEVIEW = 100;
     private Handler mMainHandler = null;
+    private CountDownLatch latch = new CountDownLatch(1);
     private RenderThread mRenderThread;
     private HashMap<Integer, String[]> mShaderList;
     private HashMap<String, UniformParameter[]> mShaderUniformParameter;
@@ -33,6 +34,7 @@ public class ImageAnimationView extends AppCompatActivity {
     private long mCurrentTime = 0L;
     private float mQuantLevel = 2.0f;
     private float mWaterPower = 8.0f;
+    private boolean mFristReadPxiels = true;
 
     private class UniformParameter{
         public String uniformName;
@@ -56,7 +58,8 @@ public class ImageAnimationView extends AppCompatActivity {
                     mImageView.setImageResource(R.drawable.leg);
                 } else {
                     Bitmap bitmap = (Bitmap) msg.obj;
-                    mImageView.setImageBitmap(bitmap);
+                    if (bitmap != null)
+                        mImageView.setImageBitmap(bitmap);
                     if(mRenderThread != null) {
                         RenderHandler handler = mRenderThread.getRenderHandler();
                         if (mShaderIndex == 1) { // Marquee
@@ -206,19 +209,28 @@ public class ImageAnimationView extends AppCompatActivity {
         mBtnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mShaderIndex = ++mShaderIndex % mShaderList.size();
-                mBtnSwitch.setText(filterName[mShaderIndex]);
-                if (mCurrentUniformParam != null) {
-                    for (int i = 0; i < mCurrentUniformParam.length; ++i)
-                        mCurrentUniformParam[i].value = 0.0f;
-                }
-                mCurrentUniformParam = mShaderUniformParameter.get(filterName[mShaderIndex]);
-                mCurrentTime = 0;
-
-                mMainHandler.sendMessage(mMainHandler.obtainMessage(RESERIMGAGEVIEW));
                 if (mRenderThread != null) {
                     RenderHandler handler = mRenderThread.getRenderHandler();
+                    handler.setStopRender();
+
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    mShaderIndex = ++mShaderIndex % mShaderList.size();
+                    mBtnSwitch.setText(filterName[mShaderIndex]);
+                    if (mCurrentUniformParam != null) {
+                        for (int i = 0; i < mCurrentUniformParam.length; ++i)
+                            mCurrentUniformParam[i].value = 0.0f;
+                    }
+                    mCurrentUniformParam = mShaderUniformParameter.get(filterName[mShaderIndex]);
+                    mCurrentTime = 0;
+
                     handler.addRenderPass(mShaderIndex);
+
+                    mMainHandler.sendMessage(mMainHandler.obtainMessage(RESERIMGAGEVIEW));
                 }
             }
         });
@@ -264,6 +276,8 @@ public class ImageAnimationView extends AppCompatActivity {
         private HashMap<Integer, Integer> mFilterResourceStatus;
         private final  int SHADERLOADED = 1 << 0;
         private final  int RESOURCELOADED = 1 << 1;
+        private boolean mStopRendering = false;
+
 
         RenderThread(Context context, Handler handler) {
             mContext = context;
@@ -301,6 +315,7 @@ public class ImageAnimationView extends AppCompatActivity {
         }
 
         public void addRenderPass(int renderpassIndex) {
+            mStopRendering = false;
             mNativeRender.native_addRenderPass(renderpassIndex);
         }
         public void loadShader() {
@@ -347,12 +362,16 @@ public class ImageAnimationView extends AppCompatActivity {
 
         }
 
+        // set parameter
         public void setParameter(String uniformName, float intensity) {
-            // set parameter
+            if (mStopRendering)
+                return;
             mNativeRender.native_setParamFloat(mShaderIndex, uniformName, intensity);
         }
 
         public void setViewPort(int width, int height) {
+            if (mStopRendering)
+                return;
             if (mReadWidth != width || mReadHeight != height) {
                 mNativeRender.native_onSurfaceChanged(width, height);
                 mReadWidth = width;
@@ -360,7 +379,21 @@ public class ImageAnimationView extends AppCompatActivity {
             }
         }
         public void drawFrame() {
+            if (mStopRendering) {
+                Message msg = mMainHandler.obtainMessage();
+                msg.obj = null;
+                mMainHandler.sendMessage(msg);
+                return;
+            }
+
+            if (mFristReadPxiels) {
+                // the frist frame is empty, so should render two time
+                mNativeRender.native_onDrawFrame(mShaderIndex);
+                mFristReadPxiels = false;
+            }
+
             mNativeRender.native_onDrawFrame(mShaderIndex);
+
             // read render result of pixel from GL
             Bitmap bitmap = mNativeRender.native_readPixel(0, 0, mReadWidth, mReadHeight);
             // send bitmap to main thread for updating imageview
@@ -369,6 +402,10 @@ public class ImageAnimationView extends AppCompatActivity {
             mMainHandler.sendMessage(msg);
         }
 
+        public void stopRendering() {
+            mStopRendering = true;
+            latch.countDown();
+        }
         public void exit() {
             Looper.myLooper().quit();
         }
@@ -381,7 +418,8 @@ public class ImageAnimationView extends AppCompatActivity {
         private final int MSG_SETVIEWPORT   = 3;
         private final int MSG_SETPARAMETER  = 4;
         private final int MSG_DRAWFRAME     = 5;
-        private final int MSG_EXIT          = 6;
+        private final int MSG_STOPRENDER    = 6;
+        private final int MSG_EXIT          = 7;
         private RenderThread mRenderThread;
         RenderHandler(RenderThread thread) {
             mRenderThread = thread;
@@ -414,6 +452,9 @@ public class ImageAnimationView extends AppCompatActivity {
             sendMessage(obtainMessage(MSG_DRAWFRAME));
         }
 
+        public void setStopRender() {
+            sendMessage(obtainMessage(MSG_STOPRENDER));
+        }
         public void exitRenderThread() {
             sendMessage(obtainMessage(MSG_EXIT));
         }
@@ -445,6 +486,9 @@ public class ImageAnimationView extends AppCompatActivity {
                     break;
                 case MSG_DRAWFRAME:
                     mRenderThread.drawFrame();
+                    break;
+                case MSG_STOPRENDER:
+                    mRenderThread.stopRendering();
                     break;
                 case MSG_EXIT:
                     mRenderThread.exit();
