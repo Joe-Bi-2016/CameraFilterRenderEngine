@@ -17,12 +17,38 @@
         app:srcCompat="@drawable/leg" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_txt_reset"
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/buttonBk"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"/>
+
+    <Button
+        android:id="@+id/buttonBk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/bg_render_txt"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView" />
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <Button
+        android:id="@+id/buttonSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_txt_switch"
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        app:layout_constraintLeft_toRightOf="@+id/buttonBk"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
