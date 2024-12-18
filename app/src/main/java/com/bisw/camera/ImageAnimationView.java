@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,6 +30,7 @@ public class ImageAnimationView extends AppCompatActivity {
     private HashMap<Integer, String[]> mShaderList;
     private HashMap<String, UniformParameter[]> mShaderUniformParameter;
     private int mShaderIndex = 0;
+    private int mImgViewWidth, mImgViewHeight;
     private float step = 0.018f;
     private UniformParameter[] mCurrentUniformParam;
     private long mCurrentTime = 0L;
@@ -51,6 +54,13 @@ public class ImageAnimationView extends AppCompatActivity {
         setContentView(R.layout.activity_imageanimation);
 
         mImageView = (ImageView) findViewById(R.id.imageView);
+        Drawable drawable = mImageView.getDrawable();
+        if (drawable instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+            mImgViewWidth = bitmap.getWidth();
+            mImgViewHeight = bitmap.getHeight();
+        }
+
         mMainHandler = new Handler(Looper.myLooper()){
             @Override
             public void handleMessage(@NonNull Message msg) {
@@ -170,7 +180,7 @@ public class ImageAnimationView extends AppCompatActivity {
                         // load resource
                         handler.setResource(new int[]{R.drawable.leg, R.drawable.mellow});
                         // set viewport
-                        handler.setViewPort(933, 1400);
+                        handler.setViewPort(mImgViewWidth, mImgViewHeight);
                         // calculate uniform value and set it
                         if (mCurrentUniformParam != null) {
                             for (int i = 0; i < mCurrentUniformParam.length; ++i) {
