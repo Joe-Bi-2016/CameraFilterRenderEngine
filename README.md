@@ -1,5 +1,5 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Linux-lightgrey)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Linux-brightgreen)
 ![Language](https://img.shields.io/badge/language-C%2B%2B%20%7C%20GLSL-orange)
 
 ## Description
