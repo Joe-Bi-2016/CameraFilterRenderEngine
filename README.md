@@ -1,6 +1,6 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Linux-brightgreen)
-![Language](https://img.shields.io/badge/language-C%2B%2B%20%7C%20GLSL-orange)
+![Language](https://img.shields.io/badge/language-C%2B%2B%20%7CJava%20%7C%20GLSL-orange)
 
 ## Description
 > A high-performance, extensible OpenGL ES rendering engine for mobile platforms, enabling unified rendering across multiple scenarios such as camera filters, photo editing, video playback, and non-linear editing.
