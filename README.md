@@ -2,10 +2,6 @@
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Linux-lightgrey)
 ![Language](https://img.shields.io/badge/language-C%2B%2B%20%7C%20GLSL-orange)
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Description
 > A high-performance, extensible OpenGL ES rendering engine for mobile platforms, enabling unified rendering across multiple scenarios such as camera filters, photo editing, video playback, and non-linear editing.
 
@@ -35,7 +31,7 @@ Issues and PRs are welcome! We especially appreciate real-world usage feedback a
 ## 📜 License
 MIT License
 
-# CameraFilterRenderEngine
+## CameraFilterRenderEngine
 
 This is an Android camera-related project that demonstrates how to use the Android Camera1 API and Camera2 API with TextureView and SurfaceView for previewing, capturing, and saving photos. Furthermore, the project includes the design and development of a filter rendering engine capable of processing camera effects and applying special effects to other components such as ImageView. This engine is versatile and can be utilized in both camera apps and photo album apps. The filter engine effectively decouples the effect display components from the algorithms, allowing application developers and algorithm specialists to focus on their respective domains. In future phases, a configuration file function can be added to dynamically download special effect algorithms in script form as needed, and it can also be compatible with algorithms from [shaderToy](https://www.shadertoy.com/) web.
 
@@ -50,4 +46,8 @@ This is an Android camera-related project that demonstrates how to use the Andro
 7. Support for multi-render pass renderpasses, enabling nonlinear editing;
 8. Support for multimedia playback;
 9. Support for importing [shaderToy](https://www.shadertoy.com/)'s shader scripts, facilitating easy porting and integration.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
 
