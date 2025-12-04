@@ -95,6 +95,7 @@ BEGIN
         GLTexture2D::operator=(texture);
 #if (defined(ANDROID) || defined(__ANDROID__))
         release(*this);
+        mInBuffer = texture.mInBuffer;
         texture.mInBuffer = nullptr;
         release(texture);
 #endif
