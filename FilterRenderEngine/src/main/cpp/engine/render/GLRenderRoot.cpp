@@ -75,10 +75,6 @@ BEGIN
     }
 
     //------------------------------------------------------------------------------------//
-    GLRenderRoot* GLRenderRoot::mRenderRoot = nullptr;
-    std::mutex GLRenderRoot::mMutex;
-
-    //------------------------------------------------------------------------------------//
     GLRenderRoot::GLRenderRoot(void)
     : mMainThreadId(0)
     , mMainThreadRoot(nullptr)
@@ -114,14 +110,8 @@ BEGIN
     //------------------------------------------------------------------------------------//
     GLRenderRoot* GLRenderRoot::getInstance(void)
     {
-        if(mRenderRoot == nullptr)
-        {
-            std::lock_guard<std::mutex> lock(mMutex);
-            if(mRenderRoot == nullptr)
-                mRenderRoot = new GLRenderRoot();
-        }
-
-        return mRenderRoot;
+        static GLRenderRoot instance;
+        return &instance;
     }
 
     //------------------------------------------------------------------------------------//
@@ -140,12 +130,6 @@ BEGIN
             }
 
             mBackThread.clear();
-        }
-
-        if (mRenderRoot)
-        {
-            std::lock_guard<std::mutex> lock(mMutex);
-            safeDeleteObject(mRenderRoot);
         }
 
         // global static variables should been release first

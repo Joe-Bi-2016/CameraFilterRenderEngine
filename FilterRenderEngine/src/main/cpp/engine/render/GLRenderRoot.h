@@ -57,8 +57,6 @@ BEGIN
         static void* threadLoop(void* pParam);
 
     private:
-        static GLRenderRoot*                        mRenderRoot;
-        static std::mutex                           mMutex;
         GLRenderThreadMain*                         mMainThreadRoot;
         sharedFrameBuffer                           mDefaultFbo;
         pthread_t                                   mMainThreadId;
